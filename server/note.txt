@@ -1,0 +1,33 @@
+MONGODB_URL = 'mongodb://0.0.0.0:27017'
+
+-- Error Handler
+-- Design User Database Model
+    - npx tsc --init
+        - Created a new tsconfig.json with:
+            target: es2016
+            module: commonjs
+            strict: true
+            exModuleInterop: true
+            skipLibCheck: true
+            forceConsistentCasingInfileNames: true
+-- User Registration, Sending Email Templates, EJS, Implementation
+
+
+-- What is interface?
+    - The interface in Java is a mechanism to achieve abstraction. There can be only abstract methods in Java Interface, not the method body.
+
+    - A surface forming a common boundary of two bodies, spaces, or phases.
+    - An interface between oil & water.
+    - The place at which independent systems meet & act on or communicate with each other
+    - In this inteface, we can define some types like. In this user modal we can define some email, password, compared Password
+
+    interface {
+        // declare constant fields
+        // declare methods that abstract 
+        // by default.   
+    }
+
+npm i ejs
+npm i --save-dev @types/ejs
+npm i nodemailer
+npm i --save-dev @types/nodemailer
