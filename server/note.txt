@@ -1,4 +1,7 @@
+PORT = 3000
 MONGODB_URL = 'mongodb://0.0.0.0:27017'
+
+
 
 -- Error Handler
 -- Design User Database Model
@@ -11,6 +14,9 @@ MONGODB_URL = 'mongodb://0.0.0.0:27017'
             skipLibCheck: true
             forceConsistentCasingInfileNames: true
 -- User Registration, Sending Email Templates, EJS, Implementation
+
+for app password = search on security "app passwords (security)": tpsnfhzkjaotmuhg
+PASSWORD GENERATOR 
 
 
 -- What is interface?
