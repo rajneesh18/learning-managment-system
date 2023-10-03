@@ -29,7 +29,6 @@ export const registrationUser = CatchAsyncError(async (req: Request, res: Respon
             email,
             password
         }
-
         const activationToken = createActivationToken(user);
         const activationCode = activationToken.activationCode;
 
@@ -98,11 +97,9 @@ export const activateUser = CatchAsyncError(async (req: Request, res: Response, 
 
         const existUser = await userModel.findOne({ email });
 
-
         if (existUser) {
             return next(new ErrorHandler("Email already exist", 400));
         }
-
 
         const user = await userModel.create({
             name,
@@ -110,12 +107,39 @@ export const activateUser = CatchAsyncError(async (req: Request, res: Response, 
             password
         });
 
-
         res.status(201).json({
             success: true
         });
 
     } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400));
+    }
+});
+
+/** Login User */
+interface ILoginUser {
+    email: string;
+    password: string;
+}
+
+export const loginUser = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { email, password } = req.body as ILoginUser;
+        if(!email || !password) {
+            return next(new ErrorHandler("Please enter email & password", 400))
+        }
+        const user = await userModel.findOne({ email }).select("+password");
+        if(!user) {
+            return next(new ErrorHandler("Invalid email or password", 400));
+        }
+
+        const isPasswordMatch = await user.comparePassword(password);
+        if(!isPasswordMatch) {
+            return next(new ErrorHandler("Invalid email or password", 400));
+        }
+        
+
+    } catch (error:any) {
         return next(new ErrorHandler(error.message, 400));
     }
 });
