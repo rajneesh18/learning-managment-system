@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import userModel, { IUser } from "../models/user.model";
+import User, { IUser } from "../models/user.model";
 import ErrorHandler from "../utils/errorHandler";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors";
 import jwt, { Secret } from "jsonwebtoken";
@@ -20,7 +20,7 @@ export const registrationUser = CatchAsyncError(async (req: Request, res: Respon
     try {
         const { name, email, password } = req.body;
 
-        const isEmailExist = await userModel.findOne({ email });
+        const isEmailExist = await User.findOne({ email });
         if (isEmailExist) {
             return next(new ErrorHandler("Email already exists", 400));
         }
@@ -96,13 +96,13 @@ export const activateUser = CatchAsyncError(async (req: Request, res: Response, 
 
         const { name, email, password } = newUser.user;
 
-        const existUser = await userModel.findOne({ email });
+        const existUser = await User.findOne({ email });
 
         if (existUser) {
             return next(new ErrorHandler("Email already exist", 400));
         }
 
-        const user = await userModel.create({
+        const user = await User.create({
             name,
             email,
             password
@@ -129,7 +129,7 @@ export const loginUser = CatchAsyncError(async (req: Request, res: Response, nex
         if(!email || !password) {
             return next(new ErrorHandler("Please enter email & password", 400))
         }
-        const user = await userModel.findOne({ email }).select("+password");
+        const user = await User.findOne({ email }).select("+password");
         if(!user) {
             return next(new ErrorHandler("Invalid email or password", 400));
         }
