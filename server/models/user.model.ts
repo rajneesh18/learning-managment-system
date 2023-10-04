@@ -81,7 +81,7 @@ userSchema.methods.SignRefreshToken = function () {
 
 /** Compare Password */
 userSchema.methods.comparePassword = async function (enteredPassword: string): Promise<boolean> {
-    return await bcrypt.compare(enteredPassword, this.passsword);
+    return await bcrypt.compare(enteredPassword, this.password);
 };
 
 const userModel: Model<IUser> = mongoose.model("User", userSchema);

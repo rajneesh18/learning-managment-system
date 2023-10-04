@@ -1,5 +1,5 @@
 PORT = 3000
-MONGODB_URL = 'mongodb://0.0.0.0:27017'
+MONGODB_URL = 'mongodb://0.0.0.0:27017/lms'
 
 
 
@@ -37,3 +37,6 @@ npm i ejs
 npm i --save-dev @types/ejs
 npm i nodemailer
 npm i --save-dev @types/nodemailer
+
+Error Faces: 
+    - "Illegal arguments: string, undefined"
