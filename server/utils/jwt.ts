@@ -1,6 +1,8 @@
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import { IUser } from "../models/user.model";
 import { Redis } from "ioredis";
+import { CatchAsyncError } from "../middleware/catchAsyncErrors";
+import ErrorHandler from "./errorHandler";
 
 interface ITokenOptions {
     expires: Date;
@@ -51,4 +53,5 @@ export const sendToken = ( user: IUser, statusCode: number, res:Response ) => {
     });
 
 }
+
 
