@@ -2,11 +2,12 @@ import { Request, Response, NextFunction } from "express";
 import User, { IUser } from "../models/user.model";
 import ErrorHandler from "../utils/errorHandler";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors";
-import jwt, { Secret } from "jsonwebtoken";
+import jwt, { JwtPayload, Secret } from "jsonwebtoken";
 import ejs from "ejs";
 import path from "path";
 import sendMail from "../utils/sendMail";
-import { sendToken } from "../utils/jwt";
+import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utils/jwt";
+import { getUserById } from "../services/user.service";
 
 /** Register User */
 interface IRegistrationBody {
@@ -126,37 +127,120 @@ interface ILoginUser {
 export const loginUser = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, password } = req.body as ILoginUser;
-        if(!email || !password) {
+        if (!email || !password) {
             return next(new ErrorHandler("Please enter email & password", 400))
         }
         const user = await User.findOne({ email }).select("+password");
-        if(!user) {
+        if (!user) {
             return next(new ErrorHandler("Invalid email or password", 400));
         }
         const isPasswordMatch = await user.comparePassword(password);
-        
-        if(!isPasswordMatch) {
+
+        if (!isPasswordMatch) {
             return next(new ErrorHandler("Invalid email or password", 400));
         }
         sendToken(user, 200, res);
 
-    } catch (error:any) {
+    } catch (error: any) {
         return next(new ErrorHandler(error.message, 400));
     }
 });
 
 /** Logout User */
-export const logoutUser = CatchAsyncError(async (req:Request, res:Response, next:NextFunction) => {
+export const logoutUser = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
     try {
-        res.cookie("access_token", "", { maxAge: 1});
-        res.cookie("refresh_token", "", { maxAge: 1});
+        res.cookie("access_token", "", { maxAge: 1 });
+        res.cookie("refresh_token", "", { maxAge: 1 });
 
+        let id = res.locals.user?._id || '';
+        console.log(id);
+
+        await User.findByIdAndDelete(id);
         res.status(200).json({
             success: true,
             message: "Logged Out Successfully"
         });
-        
-    } catch (error:any) {
+
+    } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400));
+    }
+});
+
+/** Valiate User Role */
+export const authorizeRoles = (...roles: string[]) => {
+    return (req: Request, res: Response, next: NextFunction) => {
+        if (!roles.includes(res.locals?.role || '')) {
+            return next(new ErrorHandler(`Role: ${res.locals.user?.role} is not allowed to access this resource`, 403));
+        }
+    }
+}
+
+
+/** Update Access Token */
+export const updateAccessToken = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const refresh_token = req.cookies.refresh_token as string;
+        const decoded = jwt.verify(refresh_token, process.env.REFRESH_TOKEN as string) as JwtPayload;
+
+        const message = 'Cound not refresh token';
+        if (!decoded) {
+            return next(new ErrorHandler(message, 400));
+        }
+
+        const session = await User.findById(decoded.id as string);
+        if (!session) {
+            return next(new ErrorHandler(message, 400));
+        }
+        const user = session;
+        const accessToken = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN as string, {
+            expiresIn: "5m"
+        });
+        const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN as string, {
+            expiresIn: "3d"
+        });
+
+        res.cookie("access_token", accessToken, accessTokenOptions);
+        res.cookie("refresh_token", refreshToken, refreshTokenOptions);
+
+        res.status(200).json({
+            status: "success",
+            accessToken
+        });
+
+    } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400));
+    }
+});
+
+/** Get User Info */
+export const getUserInfo = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userId = res.locals.user?._id;
+        getUserById(userId, res);
+
+    } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400))
+    }
+});
+
+interface ISocialAuthBody {
+    email: string;
+    name: string;
+    avatar: string;
+}
+/** Social Auth */
+export const socialAuth = CatchAsyncError(async (req:Request, res:Response, next:NextFunction) => {
+    try {
+        const { email, name, avatar } = req.body as ISocialAuthBody;
+        const user = await User.findOne({ email });
+        if (!user) {
+            const newUser = await User.create({ email, name, avatar });
+            sendToken(newUser, 200, res);
+        } else {
+            sendToken(user, 200, res);
+        }
+    } catch (error: any) {
+        console.log(error);
         return next(new ErrorHandler(error.message, 400));
     }
 });

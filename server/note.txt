@@ -14,9 +14,16 @@ MONGODB_URL = 'mongodb://0.0.0.0:27017/lms'
             skipLibCheck: true
             forceConsistentCasingInfileNames: true
 -- User Registration, Sending Email Templates, EJS, Implementation
+-- User Login, Logout
+-- Generate New Token, Get User, Social Authentication
+-- Update User Info, Password, Avatar
 
 for app password = search on security "app passwords (security)": tpsnfhzkjaotmuhg
 PASSWORD GENERATOR 
+
+-- set res.locals.somevariable = variable1;
+
+
 
 
 -- What is interface?

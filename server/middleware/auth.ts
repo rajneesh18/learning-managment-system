@@ -24,7 +24,7 @@ export const isAuthenticated = CatchAsyncError(async (req:Request, res:Response,
         return next(new ErrorHandler("User not found", 400));
     }
 
-    (<any>req).user = user;
+    res.locals.user = user;
 
     next();
 
