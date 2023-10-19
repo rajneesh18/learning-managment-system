@@ -10,6 +10,6 @@ userRouter.get('/logout', isAuthenticated, logoutUser);
 userRouter.get('/refresh', updateAccessToken);
 userRouter.get('/me', isAuthenticated, getUserInfo);
 userRouter.post('/social-auth', socialAuth);
-userRouter.post('/update-auth', isAuthenticated, updateUserInfo)
+userRouter.put('/update-user-info', isAuthenticated, updateUserInfo)
 
 export default userRouter;

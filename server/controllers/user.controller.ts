@@ -10,14 +10,13 @@ import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utils/jwt
 import { getUserById } from "../services/user.service";
 import { redis } from "../utils/redis";
 
-/** Register User */
+/** Begin::Register User */
 interface IRegistrationBody {
     name: string;
     email: string;
     password: string;
     avatar?: string;
 }
-
 export const registrationUser = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { name, email, password } = req.body;
@@ -59,12 +58,14 @@ export const registrationUser = CatchAsyncError(async (req: Request, res: Respon
         return next(new ErrorHandler(error.message, 400));
     }
 });
+/** End::Register User */
 
+
+/** Begin::Create Activation Token */
 interface IActivationToken {
     token: string;
     activationCode: string;
 };
-
 export const createActivationToken = (user: any): IActivationToken => {
     const activationCode = Math.floor(1000 + Math.random() * 9000).toString();
 
@@ -75,13 +76,13 @@ export const createActivationToken = (user: any): IActivationToken => {
 
     return { token, activationCode };
 }
+/** End::Create Activation Token */
 
-/** Activate User */
+/** Begin::Activate User */
 interface IActivationRequest {
     activation_token: string;
     activation_code: string;
 }
-
 export const activateUser = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { activation_token, activation_code } = req.body as IActivationRequest;
@@ -118,13 +119,13 @@ export const activateUser = CatchAsyncError(async (req: Request, res: Response, 
         return next(new ErrorHandler(error.message, 400));
     }
 });
+/** End::Activate User */
 
-/** Login User */
+/** Begin::Login User */
 interface ILoginUser {
     email: string;
     password: string;
 }
-
 export const loginUser = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, password } = req.body as ILoginUser;
@@ -146,8 +147,10 @@ export const loginUser = CatchAsyncError(async (req: Request, res: Response, nex
         return next(new ErrorHandler(error.message, 400));
     }
 });
+/** End:::Login User */
 
-/** Logout User */
+
+/** Begin::Logout User */
 export const logoutUser = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
     try {
         res.cookie("access_token", "", { maxAge: 1 });
@@ -169,6 +172,7 @@ export const logoutUser = CatchAsyncError(async (req: Request, res: Response, ne
         return next(new ErrorHandler(error.message, 400));
     }
 });
+/** End::Logout User */
 
 /** Valiate User Role */
 export const authorizeRoles = (...roles: string[]) => {
@@ -217,8 +221,9 @@ export const updateAccessToken = CatchAsyncError(async (req: Request, res: Respo
         return next(new ErrorHandler(error.message, 400));
     }
 });
+/** End::Update Access Token */
 
-/** Get User Info */
+/** Begin::Get User Info */
 export const getUserInfo = CatchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = res.locals.user?._id;
@@ -228,13 +233,15 @@ export const getUserInfo = CatchAsyncError(async (req: Request, res: Response, n
         return next(new ErrorHandler(error.message, 400))
     }
 });
+/** End::Get User Info */
 
+
+/** Begin::Social Auth */
 interface ISocialAuthBody {
     email: string;
     name: string;
     avatar: string;
 }
-/** Social Auth */
 export const socialAuth = CatchAsyncError(async (req:Request, res:Response, next:NextFunction) => {
     try {
         const { email, name, avatar } = req.body as ISocialAuthBody;
@@ -250,7 +257,10 @@ export const socialAuth = CatchAsyncError(async (req:Request, res:Response, next
         return next(new ErrorHandler(error.message, 400));
     }
 });
+/** End::Social Auth */
 
+
+/** Begin::Update User Info */
 interface IUpdateUserInfo {
     name?: string;
     email?: string;
@@ -270,8 +280,11 @@ export const updateUserInfo = CatchAsyncError(async (req:Request, res:Response, 
         }
         if(name && user) { user.name = name; }
 
-        await user?.save();
-        await redis.set(userId, JSON.stringify(user));
+        const userdata = await user?.save();
+        await redis.set(userId, userdata).then(() => console.log('userId Setted'));
+        await redis.get(userId).then((result) => {
+            console.log('Get userId value');
+        })
 
         res.status(201).json({
             status: true,
@@ -282,3 +295,4 @@ export const updateUserInfo = CatchAsyncError(async (req:Request, res:Response, 
         return next(new ErrorHandler(error.message, 400));
     }
 });
+/** End::Update User Info */
