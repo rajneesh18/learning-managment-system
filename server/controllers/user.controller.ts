@@ -8,6 +8,7 @@ import path from "path";
 import sendMail from "../utils/sendMail";
 import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utils/jwt";
 import { getUserById } from "../services/user.service";
+import { redis } from "../utils/redis";
 
 /** Register User */
 interface IRegistrationBody {
@@ -152,10 +153,13 @@ export const logoutUser = CatchAsyncError(async (req: Request, res: Response, ne
         res.cookie("access_token", "", { maxAge: 1 });
         res.cookie("refresh_token", "", { maxAge: 1 });
 
-        let id = res.locals.user?._id || '';
-        console.log(id);
+        const userId = res.locals.user?._id || '';
 
-        await User.findByIdAndDelete(id);
+        
+        console.log(res.locals.user);
+        await redis.del(userId);
+
+
         res.status(200).json({
             success: true,
             message: "Logged Out Successfully"
@@ -198,6 +202,8 @@ export const updateAccessToken = CatchAsyncError(async (req: Request, res: Respo
         const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN as string, {
             expiresIn: "3d"
         });
+
+        // res.user = user;
 
         res.cookie("access_token", accessToken, accessTokenOptions);
         res.cookie("refresh_token", refreshToken, refreshTokenOptions);
@@ -265,14 +271,12 @@ export const updateUserInfo = CatchAsyncError(async (req:Request, res:Response, 
         if(name && user) { user.name = name; }
 
         await user?.save();
-
-        // await redis.set(userId, JSON.stringify(user));
+        await redis.set(userId, JSON.stringify(user));
 
         res.status(201).json({
             status: true,
             user
         });
-
 
     } catch (error:any) {
         return next(new ErrorHandler(error.message, 400));

@@ -1,4 +1,4 @@
-import { Redis } from "ioredis";
+import Redis from "ioredis";
 
 const redisClient = () => {
     if (process.env.REDIS_URL) {
@@ -9,4 +9,4 @@ const redisClient = () => {
     throw new Error('Redis conection failed');
 }
 
-export const redis = new Redis(redisClient());
+export const redis = new Redis();

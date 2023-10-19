@@ -25,6 +25,13 @@ PASSWORD GENERATOR
 
 
 
+`
+-- What is redis?
+    - https://upstash.com/
+    - Redis is open-source, in-memory data-storage used as database, cache, message-broker & streaming engine.
+    - Redis provide data-structure such as : strings, hashes, lists, sets & sorted sets.
+    
+
 
 -- What is interface?
     - The interface in Java is a mechanism to achieve abstraction. There can be only abstract methods in Java Interface, not the method body.
