@@ -2,8 +2,8 @@
 import { Redis } from '@upstash/redis'
 
 export const redis = new Redis({
-  url: 'https://neat-tadpole-31750.upstash.io',
-  token: 'AXwGASQgODkwNWJkYmYtZTE1ZS00ZDE1LThmNjQtNDM1NDlhY2Y3ZGI0ZDFhYzZjZDIxYTJlNDhiYTk3YjA3Y2E2NjdiNjUxN2M=',
+  url: 'https://top-maggot-33652.upstash.io',
+  token: 'AYN0ASQgYmZlMjE4OTEtOWMwOC00NTNjLTk4ODktOWQzODAwYTc5NGQ5Njg3NzY1YzRmN2U0NDUwYzg5ODMzYmZkYjFlMmU0ZTA='
 })
 
 const redisClient = () => {
